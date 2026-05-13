@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[생활과 과학] 학생 활동 응답 시스템</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', 'Malgun Gothic', sans-serif; background-color: #f8fafc; }
+        .glass { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); }
+        .gradient-bg { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); }
+        .modal-bg { background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); }
+        .transition-all { transition: all 0.3s ease; }
+    </style>
+</head>
+<body class="min-h-screen pb-12">
+
+    <!-- Admin Password Modal -->
+    <div id="passwordModal" class="fixed inset-0 z-[100] modal-bg flex items-center justify-center hidden">
+        <div class="bg-white rounded-2xl p-8 max-w-sm w-full mx-4 shadow-2xl">
+            <h3 class="text-xl font-bold text-slate-800 mb-4 text-center">관리자 인증</h3>
+            <p class="text-sm text-slate-500 mb-6 text-center">비밀번호를 입력하세요.</p>
+            <input type="password" id="adminPwInput" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none mb-4 text-center text-lg tracking-widest" placeholder="****">
+            <div class="flex gap-3">
+                <button onclick="closePwModal()" class="flex-1 py-3 text-slate-500 font-bold hover:bg-slate-100 rounded-xl transition">취소</button>
+                <button onclick="verifyPassword()" class="flex-1 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition">확인</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Header -->
+    <header id="pageHeader" class="gradient-bg text-white py-12 px-4 shadow-lg mb-8">
+        <div class="max-w-4xl mx-auto text-center">
+            <h1 class="text-3xl md:text-4xl font-bold mb-2">🧪 생활과 과학 실무 활동</h1>
+            <p class="text-indigo-100 text-lg">실생활 속 과학 원리 탐구 및 학생 응답 수집 시스템</p>
+        </div>
+    </header>
+
+    <main id="mainContent" class="max-w-4xl mx-auto px-4 space-y-8">
+        <section class="bg-indigo-50 rounded-2xl border border-indigo-100 overflow-hidden shadow-sm">
+            <div class="bg-indigo-600 px-6 py-3 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                <h2 class="text-white font-bold text-lg">오늘의 학습 안내</h2>
+            </div>
+            <div class="p-6 md:p-8 space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div onclick="showView('activity1')" class="bg-white p-5 rounded-xl border border-indigo-100 shadow-sm cursor-pointer hover:border-indigo-400 hover:shadow-md transition-all group border-l-4 border-l-indigo-500">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-xs font-bold text-indigo-500 uppercase tracking-wider">활동 1</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-300 group-hover:text-indigo-500 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </div>
+                        <p class="text-md font-bold text-slate-800">식초와 베이킹 소다의 반응 관찰</p>
+                        <p class="text-xs text-indigo-400 mt-2">상세 안내 보기 클릭 →</p>
+                    </div>
+
+                    <div onclick="showView('activity2')" class="bg-white p-5 rounded-xl border border-indigo-100 shadow-sm cursor-pointer hover:border-indigo-400 hover:shadow-md transition-all group border-l-4 border-l-orange-500">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-xs font-bold text-orange-500 uppercase tracking-wider">활동 2</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-300 group-hover:text-indigo-500 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </div>
+                        <p class="text-md font-bold text-slate-800">생활 화학 제품 안전 가이드</p>
+                        <p class="text-xs text-orange-400 mt-2">상세 안내 보기 클릭 →</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Response Form -->
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+            <div class="flex items-center mb-6">
+                <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 mr-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                </div>
+                <h2 class="text-xl font-bold text-slate-800">활동 응답 제출</h2>
+            </div>
+
+            <form id="responseForm" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Grade/Class/Number Grid -->
+                    <div class="grid grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-1">학년</label>
+                            <select id="grade" required class="w-full px-3 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm">
+                                <option value="">선택</option>
+                                <option value="1">1학년</option>
+                                <option value="2">2학년</option>
+                                <option value="3">3학년</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-1">반 (1-9반)</label>
+                            <select id="classNum" required class="w-full px-3 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm">
+                                <option value="">선택</option>
+                                <!-- JS will populate 1-9 -->
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-1">번호 (1-28번)</label>
+                            <select id="studentNum" required class="w-full px-3 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm">
+                                <option value="">선택</option>
+                                <!-- JS will populate 1-28 -->
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-1">성명</label>
+                        <input type="text" id="studentName" required placeholder="이름 입력" 
+                            class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1">탐구 내용 및 응답</label>
+                    <textarea id="studentContent" required rows="4" placeholder="오늘의 활동을 통해 알게 된 점이나 탐구 결과를 자유롭게 적어주세요." 
+                        class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm"></textarea>
+                </div>
+                <button type="submit" id="submitBtn" 
+                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-xl transition transform active:scale-95 shadow-md">
+                    응답 제출하기
+                </button>
+            </form>
+        </section>
+
+        <!-- Response Table -->
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 id="dashboardTitle" class="text-xl font-bold text-slate-800">실시간 응답 현황판</h2>
+                    <p class="text-sm text-slate-500">실시간으로 접수된 학생들의 데이터입니다.</p>
+                </div>
+                <div class="flex gap-2 w-full md:w-auto">
+                    <button id="toggleAdminBtn" onclick="openPwModal()" class="px-4 py-2 text-sm font-medium text-indigo-600 border border-indigo-600 rounded-lg hover:bg-indigo-600 hover:text-white transition">
+                        관리자 모드
+                    </button>
+                    <button id="exportBtn" style="display: none;" onclick="exportToCSV()" class="px-4 py-2 text-sm font-medium text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition flex items-center shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        엑셀(CSV) 다운
+                    </button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-slate-50 text-slate-600 text-xs uppercase tracking-wider">
+                        <tr id="tableHeader">
+                            <th class="px-6 py-4 font-bold">대상</th>
+                            <th class="admin-only px-6 py-4 font-bold" style="display: none;">성명</th>
+                            <th class="px-6 py-4 font-bold">상태 및 내용</th>
+                            <th class="px-6 py-4 font-bold text-right">제출 시간</th>
+                            <th class="admin-only px-6 py-4 font-bold text-center" style="display: none;">관리</th>
+                        </tr>
+                    </thead>
+                    <tbody id="responseList" class="divide-y divide-slate-100 text-slate-700">
+                        <tr>
+                            <td colspan="5" class="px-6 py-12 text-center text-slate-400">데이터를 불러오는 중...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- Activity Detail Views -->
+    <div id="activity1Detail" class="hidden max-w-4xl mx-auto px-4 py-8">
+        <button onclick="showView('main')" class="mb-6 flex items-center text-indigo-600 font-bold hover:text-indigo-800 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+            메인으로 돌아가기
+        </button>
+        <section class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100">
+            <div class="gradient-bg p-8 text-white">
+                <h2 class="text-3xl font-bold">식초와 베이킹 소다의 반응</h2>
+                <p class="mt-2 opacity-80">산과 염기의 중화 반응 탐구하기</p>
+            </div>
+            <div class="p-8 space-y-6">
+                <div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-3 underline decoration-indigo-200">🧪 실험 원리</h3>
+                    <p class="text-slate-600 leading-relaxed">식초(아세트산)와 베이킹 소다(탄산수소나트륨)가 만나면 화학 반응이 일어나면서 <b>이산화 탄소(CO₂)</b> 기체가 발생합니다. 이 반응은 우리 생활 속에서 빵을 부풀리거나 소화제로 쓰이는 원리와 같습니다.</p>
+                </div>
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                    <h3 class="text-lg font-bold text-slate-800 mb-3">준비물 및 과정</h3>
+                    <ul class="space-y-2 text-sm text-slate-600">
+                        <li class="flex items-center">✅ 투명 컵, 식초, 베이킹 소다, 약숟가락</li>
+                        <li class="flex items-center">✅ 1. 컵에 식초를 적당량 붓습니다.</li>
+                        <li class="flex items-center">✅ 2. 베이킹 소다를 한 숟가락 넣고 변화를 관찰합니다.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div id="activity2Detail" class="hidden max-w-4xl mx-auto px-4 py-8">
+        <button onclick="showView('main')" class="mb-6 flex items-center text-orange-600 font-bold hover:text-orange-800 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+            메인으로 돌아가기
+        </button>
+        <section class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100">
+            <div class="bg-gradient-to-r from-orange-500 to-red-600 p-8 text-white">
+                <h2 class="text-3xl font-bold">생활 화학 제품 안전 가이드</h2>
+                <p class="mt-2 opacity-80">우리의 건강을 지키는 올바른 화학 제품 사용법</p>
+            </div>
+            <div class="p-8 space-y-6">
+                <div class="bg-red-50 p-6 rounded-2xl border border-red-100 flex items-start gap-4">
+                    <div class="text-red-500 text-3xl">⚠️</div>
+                    <div>
+                        <h3 class="font-bold text-red-800 mb-1 text-lg">절대 혼합하지 마세요!</h3>
+                        <p class="text-sm text-red-700 leading-relaxed">염소계 표백제(락스)와 산성 세정제를 혼합하면 유독한 <b>염소 가스</b>가 발생하여 호흡기에 치명적인 영향을 줄 수 있습니다.</p>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-3">📍 안전 수칙</h3>
+                    <ul class="list-disc list-inside space-y-2 text-slate-600 text-sm">
+                        <li>사용 전 반드시 라벨의 성분과 주의사항을 확인합니다.</li>
+                        <li>화학 제품 사용 시에는 창문을 열어 충분히 환기합니다.</li>
+                        <li>어린이의 손이 닿지 않는 곳에 보관합니다.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, doc, deleteDoc, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'science-app-default';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' 
+            ? JSON.parse(__firebase_config) 
+            : { apiKey: "demo-key", projectId: "demo-project", appId: appId };
+        
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        
+        const ADMIN_PW = "8890";
+        let responses = [];
+        let isAdmin = false;
+
+        // Initialize Dropdowns
+        const init = () => {
+            const classSelect = document.getElementById('classNum');
+            const numSelect = document.getElementById('studentNum');
+            
+            // 9반까지 제한
+            classSelect.innerHTML = '<option value="">선택</option>';
+            for(let i=1; i<=9; i++) classSelect.add(new Option(`${i}반`, i));
+            
+            // 28번까지 제한
+            numSelect.innerHTML = '<option value="">선택</option>';
+            for(let i=1; i<=28; i++) numSelect.add(new Option(`${i}번`, i));
+
+            authenticateAndConnect();
+        };
+
+        const authenticateAndConnect = async () => {
+            try {
+                // RULE 3: Auth Before Queries
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        connectDB();
+                    }
+                });
+            } catch (err) {
+                console.error("Authentication error:", err);
+            }
+        };
+
+        const connectDB = () => {
+            if (!auth.currentUser) return;
+
+            // RULE 1: Strict Paths using appId
+            const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'responses');
+            
+            // RULE 2: No complex queries (simple collection fetch)
+            onSnapshot(colRef, (snapshot) => {
+                responses = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                // Sort in memory as per RULE 2
+                responses.sort((a, b) => {
+                    const timeA = a.timestamp?.seconds || 0;
+                    const timeB = b.timestamp?.seconds || 0;
+                    return timeB - timeA;
+                });
+                renderResponses();
+            }, (error) => {
+                console.error("Firestore Snapshot Error:", error);
+            });
+        };
+
+        window.renderResponses = () => {
+            const list = document.getElementById('responseList');
+            const title = document.getElementById('dashboardTitle');
+            
+            // 실시간 인원수 업데이트
+            title.textContent = `실시간 응답 현황판 (제출 : ${responses.length}명)`;
+
+            if (responses.length === 0) {
+                list.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-slate-400 text-sm">제출된 응답이 없습니다.</td></tr>`;
+                return;
+            }
+
+            list.innerHTML = responses.map(res => `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="px-6 py-4 text-xs font-semibold text-indigo-600">${res.grade}학년 ${res.classNum}반 ${res.studentNum}번</td>
+                    
+                    ${isAdmin ? `
+                        <td class="px-6 py-4 font-bold text-sm text-slate-800">${res.studentName || '-'}</td>
+                        <td class="px-6 py-4 text-sm text-slate-600 max-w-xs">${res.content || '-'}</td>
+                    ` : `
+                        <td class="px-6 py-4 text-sm text-slate-400 italic">🔒 응답 완료 (내용 비공개)</td>
+                    `}
+                    
+                    <td class="px-6 py-4 text-right text-xs text-slate-400">
+                        ${res.timestamp ? new Date(res.timestamp.seconds * 1000).toLocaleTimeString() : '방금'}
+                    </td>
+                    <td class="admin-only px-6 py-4 text-center" style="display: ${isAdmin ? 'table-cell' : 'none'}">
+                        <button onclick="deleteResponse('${res.id}')" class="text-red-400 hover:text-red-600">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        };
+
+        // Form Submission
+        document.getElementById('responseForm').onsubmit = async (e) => {
+            e.preventDefault();
+            if (!auth.currentUser) {
+                showNoti("인증 오류", "로그인 세션이 유효하지 않습니다.");
+                return;
+            }
+
+            const btn = document.getElementById('submitBtn');
+            const data = {
+                grade: document.getElementById('grade').value,
+                classNum: document.getElementById('classNum').value,
+                studentNum: document.getElementById('studentNum').value,
+                studentName: document.getElementById('studentName').value,
+                content: document.getElementById('studentContent').value,
+                timestamp: serverTimestamp(),
+                uid: auth.currentUser.uid
+            };
+
+            btn.disabled = true;
+            btn.textContent = "제출 중...";
+
+            try {
+                const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'responses');
+                await addDoc(colRef, data);
+                e.target.reset();
+                showNoti("제출 성공!", "선생님께 응답이 전달되었습니다.");
+            } catch (err) {
+                console.error("Submission error:", err);
+                showNoti("오류 발생", "저장에 실패했습니다.");
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "응답 제출하기";
+            }
+        };
+
+        // Admin functions
+        window.openPwModal = () => {
+            if(isAdmin) {
+                isAdmin = false;
+                toggleAdminUI();
+                return;
+            }
+            document.getElementById('passwordModal').classList.remove('hidden');
+            document.getElementById('adminPwInput').focus();
+        };
+
+        window.closePwModal = () => {
+            document.getElementById('passwordModal').classList.add('hidden');
+            document.getElementById('adminPwInput').value = '';
+        };
+
+        window.verifyPassword = () => {
+            const input = document.getElementById('adminPwInput').value;
+            if (input === ADMIN_PW) {
+                isAdmin = true;
+                toggleAdminUI();
+                closePwModal();
+                showNoti("관리자 인증", "관리자 모드가 활성화되었습니다.");
+            } else {
+                showNoti("인증 실패", "비밀번호가 올바르지 않습니다.");
+                document.getElementById('adminPwInput').value = '';
+            }
+        };
+
+        const toggleAdminUI = () => {
+            const adminCols = document.querySelectorAll('.admin-only');
+            adminCols.forEach(el => el.style.display = isAdmin ? 'table-cell' : 'none');
+            document.getElementById('exportBtn').style.display = isAdmin ? 'flex' : 'none';
+            document.getElementById('toggleAdminBtn').textContent = isAdmin ? "일반 모드" : "관리자 모드";
+            document.getElementById('toggleAdminBtn').className = isAdmin 
+                ? "px-4 py-2 text-sm font-medium text-slate-600 border border-slate-600 rounded-lg hover:bg-slate-600 hover:text-white transition"
+                : "px-4 py-2 text-sm font-medium text-indigo-600 border border-indigo-600 rounded-lg hover:bg-indigo-600 hover:text-white transition";
+            renderResponses();
+        };
+
+        window.deleteResponse = async (id) => {
+            if (confirm('해당 응답을 삭제하시겠습니까?')) {
+                try {
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'responses', id);
+                    await deleteDoc(docRef);
+                } catch (e) {
+                    showNoti("오류", "삭제에 실패했습니다.");
+                }
+            }
+        };
+
+        window.exportToCSV = () => {
+            let csv = "\uFEFF학년,반,번호,성명,응답내용,제출시간\n";
+            responses.forEach(res => {
+                const time = res.timestamp ? new Date(res.timestamp.seconds * 1000).toLocaleString() : '';
+                const cleanMsg = res.content.replace(/"/g, '""').replace(/\n/g, ' ');
+                csv += `"${res.grade}","${res.classNum}","${res.studentNum}","${res.studentName}","${cleanMsg}","${time}"\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `과학응답_${new Date().toLocaleDateString()}.csv`;
+            a.click();
+        };
+
+        // Navigation
+        window.showView = (name) => {
+            document.getElementById('mainContent').classList.toggle('hidden', name !== 'main');
+            document.getElementById('pageHeader').classList.toggle('hidden', name !== 'main');
+            document.getElementById('activity1Detail').classList.toggle('hidden', name !== 'activity1');
+            document.getElementById('activity2Detail').classList.toggle('hidden', name !== 'activity2');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        function showNoti(title, msg) {
+            const div = document.createElement('div');
+            div.className = "fixed bottom-6 right-6 bg-white border-l-4 border-indigo-600 shadow-2xl p-4 rounded-xl z-[200] animate-bounce";
+            div.innerHTML = `<h4 class="font-bold text-indigo-600">${title}</h4><p class="text-sm text-slate-600">${msg}</p>`;
+            document.body.appendChild(div);
+            setTimeout(() => {
+                div.classList.remove('animate-bounce');
+                div.classList.add('opacity-0', 'transition-opacity', 'duration-1000');
+                setTimeout(() => div.remove(), 1000);
+            }, 2500);
+        }
+
+        window.onload = init;
+
+        // Enter key for password
+        document.getElementById('adminPwInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') verifyPassword();
+        });
+    </script>
+</body>
+</html>
